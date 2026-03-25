@@ -4,23 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio</title>
-  <script src="https://cdn.tailwindcss.com">// CURSOR EFFECT
+  <script src="https://cdn.tailwindcss.com">// CURSOR EFFECT (IMPROVED)
 const cursorGlow = document.createElement('div');
 cursorGlow.style.position = 'fixed';
-cursorGlow.style.width = '200px';
-cursorGlow.style.height = '200px';
+cursorGlow.style.width = '300px';
+cursorGlow.style.height = '300px';
 cursorGlow.style.borderRadius = '50%';
 cursorGlow.style.pointerEvents = 'none';
-cursorGlow.style.background = 'radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%)';
+cursorGlow.style.background = 'radial-gradient(circle, rgba(59,130,246,0.25), rgba(124,58,237,0.15), transparent 70%)';
 cursorGlow.style.transform = 'translate(-50%, -50%)';
-cursorGlow.style.transition = 'transform 0.1s ease-out';
-cursorGlow.style.zIndex = '0';
+cursorGlow.style.transition = 'all 0.08s linear';
+cursorGlow.style.zIndex = '9999';
 document.body.appendChild(cursorGlow);
 
+let mouseX = 0;
+let mouseY = 0;
+let posX = 0;
+let posY = 0;
+
+// smooth follow (lag effect)
 document.addEventListener('mousemove', (e) => {
-  cursorGlow.style.left = e.clientX + 'px';
-  cursorGlow.style.top = e.clientY + 'px';
+  mouseX = e.clientX;
+  mouseY = e.clientY;
 });
+
+function animateCursor() {
+  posX += (mouseX - posX) * 0.1;
+  posY += (mouseY - posY) * 0.1;
+
+  cursorGlow.style.left = posX + 'px';
+  cursorGlow.style.top = posY + 'px';
+
+  requestAnimationFrame(animateCursor);
+}
+
+animateCursor();
 
 </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
