@@ -10,23 +10,53 @@
     body { font-family: 'Inter', sans-serif; }
     .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,0.05); }
     .glow:hover { box-shadow: 0 0 25px rgba(59,130,246,0.6); }
+
+    /* fade */
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fade-in 1s ease forwards; }
+
+    /* terminal */
+    .terminal {
+      background: #020617;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: monospace;
+      color: #22c55e;
+      min-height: 200px;
+    }
+    .cursor::after {
+      content: '|';
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
   </style>
 </head>
 <body class="bg-gray-950 text-white overflow-x-hidden">
 
 <!-- HERO -->
-<section class="h-screen flex flex-col justify-center items-center text-center px-4 relative">
-  <div class="absolute w-72 h-72 bg-blue-500 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-
+<section class="h-screen flex flex-col justify-center items-center text-center px-4">
   <h1 class="text-5xl md:text-7xl font-extrabold mb-6 animate-fade-in">Cześć, jestem devem 👨‍💻</h1>
-  <p class="text-gray-400 text-lg max-w-xl mb-8 animate-fade-in delay-200">
+  <p class="text-gray-400 text-lg max-w-xl mb-8 animate-fade-in">
     Buduję systemy od podstaw: AI, interpretery, backendy.
-    Myślę jak inżynier, nie użytkownik.
   </p>
 
-  <a href="#projects" class="glass glow px-8 py-3 rounded-2xl text-lg transition transform hover:scale-110">
+  <a href="#projects" id="projectsBtn" class="glass glow px-8 py-3 rounded-2xl text-lg transition transform hover:scale-110">
     Zobacz projekty ↓
   </a>
+</section>
+
+<!-- TERMINAL -->
+<section class="px-6 max-w-4xl mx-auto hidden" id="terminalSection">
+  <h2 class="text-3xl font-bold mb-6">Terminal</h2>
+  <div class="terminal">
+    <div id="terminalText" class="cursor"></div>
+  </div>
 </section>
 
 <!-- PROJECTS -->
@@ -35,64 +65,90 @@
   
   <div class="grid md:grid-cols-3 gap-10">
 
-    <div class="glass p-6 rounded-2xl glow transform hover:-translate-y-3 transition duration-300">
+    <div class="glass p-6 rounded-2xl glow hover:-translate-y-3 transition duration-300">
       <h3 class="text-2xl font-semibold mb-2">Neural Network C++</h3>
-      <p class="text-gray-400 mb-4">Backpropagation, własna implementacja bez bibliotek.</p>
-      <a href="#" class="text-blue-400">Kod →</a>
+      <p class="text-gray-400 mb-4">Backpropagation, bez bibliotek.</p>
     </div>
 
-    <div class="glass p-6 rounded-2xl glow transform hover:-translate-y-3 transition duration-300">
+    <div class="glass p-6 rounded-2xl glow hover:-translate-y-3 transition duration-300">
       <h3 class="text-2xl font-semibold mb-2">Interpreter</h3>
-      <p class="text-gray-400 mb-4">ANTLR + Java, własny język programowania.</p>
-      <a href="#" class="text-blue-400">Kod →</a>
+      <p class="text-gray-400 mb-4">ANTLR + własny język.</p>
     </div>
 
-    <div class="glass p-6 rounded-2xl glow transform hover:-translate-y-3 transition duration-300">
-      <h3 class="text-2xl font-semibold mb-2">Snake (SFML)</h3>
-      <p class="text-gray-400 mb-4">Gra od zera w C++ z obsługą inputu i kolizji.</p>
-      <a href="#" class="text-blue-400">Kod →</a>
+    <div class="glass p-6 rounded-2xl glow hover:-translate-y-3 transition duration-300">
+      <h3 class="text-2xl font-semibold mb-2">Snake</h3>
+      <p class="text-gray-400 mb-4">Gra w SFML.</p>
     </div>
 
   </div>
 </section>
 
 <!-- ABOUT -->
-<section class="py-24 px-6 text-center relative">
-  <div class="absolute left-1/2 -translate-x-1/2 w-96 h-96 bg-purple-500 opacity-10 blur-3xl"></div>
-
+<section class="py-24 px-6 text-center">
   <h2 class="text-4xl font-bold mb-6">O mnie</h2>
-  <p class="max-w-2xl mx-auto text-gray-400 text-lg">
-    Student informatyki, który zamiast używać narzędzi — buduje je od podstaw.
-    Interesuję się AI, architekturą systemów i low-level programmingiem.
+  <p class="max-w-2xl mx-auto text-gray-400">
+    Student informatyki. Buduję rzeczy od zera i rozumiem jak działają.
   </p>
 </section>
 
 <!-- CONTACT -->
 <section class="py-24 text-center">
   <h2 class="text-4xl font-bold mb-6">Kontakt</h2>
-  <p class="text-gray-400 mb-2">Email: twoj@email.com</p>
-  <p class="text-gray-400">GitHub: github.com/twojanazwa</p>
+  <p class="text-gray-400">Email: twoj@email.com</p>
 </section>
 
 <footer class="text-center py-6 text-gray-600">
   © 2026
 </footer>
 
-<!-- ANIMATIONS -->
-<style>
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+<script>
+// SMOOTH SCROLL + TRIGGER TERMINAL
+const btn = document.getElementById("projectsBtn");
+const terminalSection = document.getElementById("terminalSection");
 
-.animate-fade-in {
-  animation: fade-in 1s ease forwards;
-}
+btn.addEventListener("click", (e) => {
+  e.preventDefault();
 
-.delay-200 {
-  animation-delay: 0.2s;
+  terminalSection.classList.remove("hidden");
+
+  terminalSection.scrollIntoView({
+    behavior: "smooth"
+  });
+
+  typeTerminal();
+});
+
+// TERMINAL ANIMATION
+const terminalText = document.getElementById("terminalText");
+
+const lines = [
+  "loading portfolio...",
+  "initializing modules...",
+  "neural network ready",
+  "interpreter loaded",
+  "projects online"
+];
+
+let i = 0;
+
+function typeTerminal() {
+  if (i < lines.length) {
+    let line = lines[i];
+    let j = 0;
+
+    let interval = setInterval(() => {
+      terminalText.innerHTML += line[j] || '';
+      j++;
+      if (j >= line.length) {
+        terminalText.innerHTML += "<br>";
+        clearInterval(interval);
+        i++;
+        setTimeout(typeTerminal, 500);
+      }
+    }, 40);
+  }
 }
-</style>
+</script>
 
 </body>
 </html>
