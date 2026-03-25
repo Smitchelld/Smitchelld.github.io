@@ -1,64 +1,68 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moje CV</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-        }
-
-        header, footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 1em;
-        }
-
-        section {
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #333;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-950 text-white font-sans">
 
-    <header>
-        <h1>Kowalski Szymon</h1>
-        <p>Stanowisko / Zawód brak</p>
-    </header>
+<!-- HERO -->
+<section class="h-screen flex flex-col justify-center items-center text-center px-4">
+  <h1 class="text-5xl md:text-7xl font-bold mb-6">Cześć, jestem devem 👨‍💻</h1>
+  <p class="text-gray-400 text-lg max-w-xl mb-8">
+    Buduję systemy od podstaw: AI, interpretery, backendy.
+    Skupiam się na zrozumieniu, nie tylko używaniu.
+  </p>
+  <a href="#projects" class="bg-blue-500 px-6 py-3 rounded-2xl text-lg hover:bg-blue-600 transition">
+    Zobacz projekty
+  </a>
+</section>
 
-    <section>
-        <h2>Dane Osobowe</h2>
-        <ul>
-            <li><strong>Adres:</strong> ul. Przykładowa 123, 00-000 Miasto</li>
-            <li><strong>Telefon:</strong> 123-456-789</li>
-            <li><strong>Email:</strong> imie.nazwisko@email.com</li>
-        </ul>
-    </section>
+<!-- PROJECTS -->
+<section id="projects" class="py-20 px-6 max-w-6xl mx-auto">
+  <h2 class="text-4xl font-bold mb-12 text-center">Projekty</h2>
+  
+  <div class="grid md:grid-cols-3 gap-8">
+    
+    <div class="bg-gray-900 p-6 rounded-2xl hover:scale-105 transition">
+      <h3 class="text-2xl font-semibold mb-2">Neural Network C++</h3>
+      <p class="text-gray-400">Własna implementacja sieci neuronowej bez bibliotek.</p>
+    </div>
 
-    <section>
-        <h2>Wykształcenie</h2>
-        <p><strong>Nazwa Uniwersytetu/Szkoły:</strong> Informatyka i systemy Inteligentne, 1 rok</p>
-    </section>
+    <div class="bg-gray-900 p-6 rounded-2xl hover:scale-105 transition">
+      <h3 class="text-2xl font-semibold mb-2">Interpreter</h3>
+      <p class="text-gray-400">Język programowania + parser w ANTLR.</p>
+    </div>
 
-    <section>
-        <h2>Doświadczenie Zawodowe</h2>
-        <p><strong>Nazwa Firmy:</strong> brak</p>
-        <p></p>
-    </section>
+    <div class="bg-gray-900 p-6 rounded-2xl hover:scale-105 transition">
+      <h3 class="text-2xl font-semibold mb-2">Snake (SFML)</h3>
+      <p class="text-gray-400">Gra napisana od zera w C++.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="py-20 px-6 bg-gray-900 text-center">
+  <h2 class="text-4xl font-bold mb-6">O mnie</h2>
+  <p class="max-w-2xl mx-auto text-gray-400">
+    Student informatyki zainteresowany AI, systemami i architekturą.
+    Lubię rozumieć rzeczy od podstaw i budować własne rozwiązania.
+  </p>
+</section>
+
+<!-- CONTACT -->
+<section class="py-20 text-center">
+  <h2 class="text-4xl font-bold mb-6">Kontakt</h2>
+  <p class="text-gray-400 mb-4">Email: twoj@email.com</p>
+  <p class="text-gray-400">GitHub: github.com/twojanazwa</p>
+</section>
+
+<footer class="text-center py-6 text-gray-600">
+  © 2026
+</footer>
+
+</body>
+</html>
