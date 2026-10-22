@@ -27,17 +27,21 @@
       color: var(--fg);
       font-family: 'Space Mono', monospace;
       overflow-x: hidden;
-      cursor: none;
     }
 
     /* ─── CURSOR ─── */
     #cur {
+      display: none;
       position: fixed; width: 8px; height: 8px;
       background: var(--accent); border-radius: 50%;
       pointer-events: none; z-index: 9999;
       transform: translate(-50%,-50%);
       transition: width .15s, height .15s, box-shadow .15s, background .15s;
       mix-blend-mode: screen;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button { cursor: none; }
+      #cur { display: block; }
     }
     body:has(a:hover) #cur, body:has(button:hover) #cur {
       width: 16px; height: 16px;
@@ -313,8 +317,10 @@
     /* ─── RESPONSIVE ─── */
     @media (max-width: 768px) {
       nav { padding: 18px 24px; }
-      .nav-links { gap: 18px; }
-      .nav-links a { font-size: .62rem; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: .62rem; white-space: nowrap; }
+      .nav-links li:last-child { display: none; }
+      .scroll-line { display: none; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 48px; }
       .stack-cols { grid-template-columns: 1fr; }
       .project-row { grid-template-columns: 1fr; gap: 16px; padding: 28px; }
@@ -366,7 +372,7 @@
       <h2 class="about-heading reveal">Buduję od<br><em>podstaw.</em></h2>
       <div class="about-stats reveal" style="transition-delay:.1s">
         <div class="stat">
-          <div class="stat-val">6<span>sem</span></div>
+          <div class="stat-val">7<span>sem</span></div>
           <div class="stat-label">AGH Kraków</div>
         </div>
         <div class="stat">
@@ -606,7 +612,7 @@ window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.
 
 // ─── TERMINAL ───
 const termLines = [
-  { p: '~ $', cmd: 'whoami', out: '<br><span style="color:#dde4f0">szymon_kowalski — agh isi, sem 5</span>' },
+  { p: '~ $', cmd: 'whoami', out: '<br><span style="color:#dde4f0">szymon_kowalski — agh isi, sem 7</span>' },
   { p: '~ $', cmd: 'cat interests.txt', out: '<br><span style="color:#818cf8">gamedev / AI / C++ / post-quantum / linux</span>' },
   { p: '~ $', cmd: 'ls ~/projects/', out: '<br><span style="color:#34d399">ArchiCode/&nbsp;&nbsp;Quill/&nbsp;&nbsp;PackageGuard/</span>' },
   { p: '~ $', cmd: './portfolio --serve', out: '<br><span style="color:#3b82f6">✓ online @ smitchelld.github.io</span>' },
@@ -622,6 +628,7 @@ function tick() {
   if (phase === 'cmd') {
     if (ci <= l.cmd.length) {
       output.innerHTML = done.join('') + `<span class="prompt">${l.p}</span> <span class="cmd">${l.cmd.slice(0,ci)}</span>`;
+      output.appendChild(tcur);
       tcur.style.display = 'inline-block';
       ci++; setTimeout(tick, 55);
     } else { phase = 'pause'; setTimeout(tick, 550); }
@@ -629,6 +636,7 @@ function tick() {
     done.push(`<span class="prompt">${l.p}</span> <span class="cmd">${l.cmd}</span>${l.out}<br>`);
     li++; ci = 0; phase = 'cmd';
     output.innerHTML = done.join('');
+    output.appendChild(tcur);
     setTimeout(tick, 350);
   }
 }
