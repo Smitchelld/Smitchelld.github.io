@@ -90,6 +90,49 @@
     }
     .nav-links a:hover { color: var(--fg); }
 
+    /* ─── APPS MENU ─── */
+    .nav-links { align-items: center; }
+    .nav-apps { position: relative; }
+    .apps-toggle {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px;
+      font-family: 'Space Mono', monospace; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--fg); background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.35); border-radius: 100px;
+      cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    .apps-toggle:hover, .apps-toggle[aria-expanded="true"] { border-color: var(--accent); background: rgba(59,130,246,.18); }
+    .apps-toggle:focus-visible, .apps-item:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+    .apps-caret { width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s; }
+    .apps-toggle[aria-expanded="true"] .apps-caret { transform: translateY(2px) rotate(225deg); }
+    .apps-menu {
+      position: absolute; top: calc(100% + 14px); right: 0; width: min(320px, calc(100vw - 32px));
+      padding: 8px; background: #060b14;
+      border: 1px solid var(--border2); border-radius: 10px; box-shadow: 0 24px 60px rgba(0,0,0,.55);
+      animation: menuIn .18s ease;
+    }
+    .apps-menu[hidden] { display: none; }
+    @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .apps-label { padding: 8px 12px 10px; font-size: .58rem; color: var(--accent); letter-spacing: .2em; text-transform: uppercase; }
+    .apps-item {
+      display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 8px;
+      color: inherit; text-decoration: none; transition: background .2s;
+    }
+    .nav-links .apps-item { font-size: 1rem; color: var(--fg); letter-spacing: 0; text-transform: none; white-space: normal; }
+    .apps-item:hover { background: rgba(255,255,255,.05); }
+    .apps-icon {
+      flex: none; width: 26px; height: 44px; padding: 7px 4px 4px; display: flex; flex-direction: column; gap: 3px;
+      background: var(--bg); border: 1px solid var(--border2); border-radius: 6px;
+    }
+    .apps-icon i { display: block; height: 2px; border-radius: 1px; background: var(--fg-dim); }
+    .apps-icon i:first-child { width: 70%; background: var(--fg); }
+    .apps-icon b { display: block; margin-top: auto; height: 5px; border-radius: 1px; background: var(--accent); }
+    .apps-text { flex: 1; min-width: 0; }
+    .apps-name, .apps-desc { display: block; }
+    .apps-name { font-family: 'DM Serif Display', serif; font-size: 1.05rem; line-height: 1.2; }
+    .apps-desc { margin-top: 3px; font-size: .62rem; color: var(--fg-dim); line-height: 1.5; letter-spacing: 0; text-transform: none; }
+    .apps-arrow { color: var(--fg-dim); font-size: .8rem; transition: color .2s, transform .2s; }
+    .apps-item:hover .apps-arrow { color: var(--accent); transform: translate(2px,-2px); }
+    .apps-soon { margin: 4px 12px 6px; padding-top: 10px; border-top: 1px solid var(--border); font-size: .6rem; color: var(--fg-dim); letter-spacing: .05em; }
+
     /* ─── HERO ─── */
     #hero {
       min-height: 100vh;
@@ -315,11 +358,19 @@
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* ─── RESPONSIVE ─── */
+    @media (max-width: 440px) {
+      .nav-links li.nav-stack { display: none; }
+      .nav-links { gap: 12px !important; }
+    }
+    @media (max-width: 400px) {
+      .nav-links li.nav-about { display: none; }
+    }
     @media (max-width: 768px) {
       nav { padding: 18px 24px; }
       .nav-links { gap: 16px; }
       .nav-links a { font-size: .62rem; white-space: nowrap; }
-      .nav-links li:last-child { display: none; }
+      .nav-links li.nav-github { display: none; }
+      .apps-toggle { padding: 7px 11px; font-size: .62rem; }
       .scroll-line { display: none; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 48px; }
       .stack-cols { grid-template-columns: 1fr; }
@@ -338,11 +389,27 @@
 <nav id="nav">
   <a href="#hero" class="nav-logo">SK.dev</a>
   <ul class="nav-links">
-    <li><a href="#about">O mnie</a></li>
+    <li class="nav-about"><a href="#about">O mnie</a></li>
     <li><a href="#projects">Projekty</a></li>
-    <li><a href="#stack">Stack</a></li>
+    <li class="nav-stack"><a href="#stack">Stack</a></li>
     <li><a href="#contact">Kontakt</a></li>
-    <li><a href="https://github.com/Smitchelld" target="_blank" rel="noopener">GitHub ↗</a></li>
+    <li class="nav-github"><a href="https://github.com/Smitchelld" target="_blank" rel="noopener">GitHub ↗</a></li>
+    <li class="nav-apps">
+      <button class="apps-toggle" id="appsToggle" type="button" aria-expanded="false" aria-controls="appsMenu">Apki <span class="apps-caret" aria-hidden="true"></span></button>
+      <div class="apps-menu" id="appsMenu" hidden>
+        <div class="apps-label">Moje aplikacje</div>
+        <!-- Kolejną apkę dodaj jako następny <a class="apps-item"> -->
+        <a class="apps-item" href="https://smitchelld.github.io/fiszki/" target="_blank" rel="noopener">
+          <span class="apps-icon" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
+          <span class="apps-text">
+            <span class="apps-name">Fiszki przed rozmową</span>
+            <span class="apps-desc">400+ pytań rekrutacyjnych, przewijanych jak rolki</span>
+          </span>
+          <span class="apps-arrow">↗</span>
+        </a>
+        <div class="apps-soon">Kolejne w drodze.</div>
+      </div>
+    </li>
   </ul>
 </nav>
 
@@ -581,6 +648,14 @@ document.addEventListener('mousemove', e => {
   cur.style.left = e.clientX + 'px';
   cur.style.top  = e.clientY + 'px';
 });
+
+// ─── APPS MENU ───
+const appsToggle = document.getElementById('appsToggle');
+const appsMenu = document.getElementById('appsMenu');
+function setApps(open) { appsMenu.hidden = !open; appsToggle.setAttribute('aria-expanded', String(open)); }
+appsToggle.addEventListener('click', e => { e.stopPropagation(); setApps(appsMenu.hidden); });
+document.addEventListener('click', e => { if (!appsMenu.hidden && !e.target.closest('.nav-apps')) setApps(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !appsMenu.hidden) { setApps(false); appsToggle.focus(); } });
 
 // ─── NAV ───
 const nav = document.getElementById('nav');
