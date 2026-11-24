@@ -1,0 +1,5 @@
+# Tych plików nie publikujemy na stronie
+.git
+.assetsignore
+wrangler.jsonc
+README.md
