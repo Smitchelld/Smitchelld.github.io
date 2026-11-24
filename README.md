@@ -1,1 +1,1 @@
-# Smitchelld.github.io
+# smitchelld.dev

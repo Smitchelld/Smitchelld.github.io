@@ -82,7 +82,8 @@
       background: rgba(4,8,15,.9); backdrop-filter: blur(20px);
       border-color: var(--border);
     }
-    .nav-logo { font-size: .8rem; color: var(--accent); letter-spacing: .08em; text-decoration: none; }
+    .nav-logo { font-size: .8rem; color: var(--accent); letter-spacing: .08em; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+    .logo-short { display: none; }
     .nav-links { display: flex; gap: 36px; list-style: none; }
     .nav-links a {
       font-size: .7rem; color: var(--fg-dim); text-decoration: none;
@@ -358,6 +359,8 @@
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* ─── RESPONSIVE ─── */
+    @media (max-width: 960px) { .nav-links { gap: 24px; } }
+    @media (max-width: 520px) { .logo-full { display: none; } .logo-short { display: inline; } }
     @media (max-width: 440px) {
       .nav-links li.nav-stack { display: none; }
       .nav-links { gap: 12px !important; }
@@ -387,7 +390,7 @@
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#hero" class="nav-logo">SK.dev</a>
+  <a href="#hero" class="nav-logo" aria-label="smitchelld.dev"><span class="logo-full">smitchelld.dev</span><span class="logo-short">smitch</span></a>
   <ul class="nav-links">
     <li class="nav-about"><a href="#about">O mnie</a></li>
     <li><a href="#projects">Projekty</a></li>
@@ -399,7 +402,7 @@
       <div class="apps-menu" id="appsMenu" hidden>
         <div class="apps-label">Moje aplikacje</div>
         <!-- Kolejną apkę dodaj jako następny <a class="apps-item"> -->
-        <a class="apps-item" href="https://smitchelld.github.io/fiszki/" target="_blank" rel="noopener">
+        <a class="apps-item" href="https://fiszki.smitchelld.dev/" target="_blank" rel="noopener">
           <span class="apps-icon" aria-hidden="true"><i></i><i></i><i></i><b></b></span>
           <span class="apps-text">
             <span class="apps-name">DryRun</span>
@@ -553,7 +556,7 @@
       <div class="proj-arrow">↗</div>
     </a>
 
-    <a class="project-row reveal" href="https://smitchelld.github.io/fiszki/" target="_blank" rel="noopener" style="transition-delay:.24s">
+    <a class="project-row reveal" href="https://fiszki.smitchelld.dev/" target="_blank" rel="noopener" style="transition-delay:.24s">
       <div class="proj-num">004</div>
       <div class="proj-info">
         <div class="proj-name">DryRun</div>
@@ -705,7 +708,7 @@ const termLines = [
   { p: '~ $', cmd: 'whoami', out: '<br><span style="color:#dde4f0">szymon_kowalski — agh isi, sem 7</span>' },
   { p: '~ $', cmd: 'cat interests.txt', out: '<br><span style="color:#818cf8">gamedev / AI / C++ / post-quantum / linux</span>' },
   { p: '~ $', cmd: 'ls ~/projects/', out: '<br><span style="color:#34d399">ArchiCode/&nbsp;&nbsp;Quill/&nbsp;&nbsp;PackageGuard/</span>' },
-  { p: '~ $', cmd: './portfolio --serve', out: '<br><span style="color:#3b82f6">✓ online @ smitchelld.github.io</span>' },
+  { p: '~ $', cmd: './portfolio --serve', out: '<br><span style="color:#3b82f6">✓ online @ smitchelld.dev</span>' },
 ];
 
 const output = document.getElementById('terminalOutput');
