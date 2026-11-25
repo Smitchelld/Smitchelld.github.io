@@ -129,6 +129,10 @@
     .apps-icon i { display: block; height: 2px; border-radius: 1px; background: var(--fg-dim); }
     .apps-icon i:first-child { width: 70%; background: var(--fg); }
     .apps-icon b { display: block; margin-top: auto; height: 5px; border-radius: 1px; background: var(--accent); }
+    /* ikonka gry: noc, poświata i różowy gracz */
+    .apps-icon-gra { height: 26px; padding: 0; align-items: center; justify-content: center;
+      background: radial-gradient(circle, rgba(255,255,255,.18) 0 30%, transparent 70%), var(--bg); }
+    .apps-icon-gra b { margin: 0; width: 6px; height: 6px; background: #ff14dc; }
     .apps-text { flex: 1; min-width: 0; }
     .apps-name, .apps-desc { display: block; }
     .apps-name { font-family: 'DM Serif Display', serif; font-size: 1.05rem; line-height: 1.2; }
@@ -384,6 +388,13 @@
       .proj-num { text-align: left; }
       .proj-arrow { display: none; }
     }
+    /* ─── NAV: dwa menu (Apki, Warsztat) muszą się zawsze zmieścić ─── */
+    .nav-links a, .apps-toggle { white-space: nowrap; }
+    .nav-links > li { flex-shrink: 0; }
+    @media (max-width: 1080px) { .nav-links { gap: 22px; } .nav-links li.nav-github { display: none; } }
+    @media (max-width: 860px)  { .nav-links li.nav-about, .nav-links li.nav-stack { display: none; } }
+    @media (max-width: 600px)  { .nav-links li.nav-projects, .nav-links li.nav-contact { display: none; } .nav-links { gap: 10px !important; } }
+    @media (max-width: 360px)  { nav { padding-left: 16px; padding-right: 16px; } .apps-toggle { padding: 7px 9px; gap: 6px; } }
   </style>
 </head>
 <body>
@@ -396,9 +407,9 @@
   <a href="#hero" class="nav-logo" aria-label="smitchelld.dev"><span class="logo-full">smitchelld.dev</span><span class="logo-short">smitch</span></a>
   <ul class="nav-links">
     <li class="nav-about"><a href="#about">O mnie</a></li>
-    <li><a href="#projects">Projekty</a></li>
+    <li class="nav-projects"><a href="#projects">Projekty</a></li>
     <li class="nav-stack"><a href="#stack">Stack</a></li>
-    <li><a href="#contact">Kontakt</a></li>
+    <li class="nav-contact"><a href="#contact">Kontakt</a></li>
     <li class="nav-github"><a href="https://github.com/Smitchelld" target="_blank" rel="noopener">GitHub ↗</a></li>
     <li class="nav-apps">
       <button class="apps-toggle" id="appsToggle" type="button" aria-expanded="false" aria-controls="appsMenu">Apki <span class="apps-caret" aria-hidden="true"></span></button>
@@ -414,6 +425,21 @@
           <span class="apps-arrow">↗</span>
         </a>
         <div class="apps-soon">Kolejne w drodze.</div>
+      </div>
+    </li>
+    <li class="nav-apps">
+      <button class="apps-toggle" id="warsztatToggle" type="button" aria-expanded="false" aria-controls="warsztatMenu">Warsztat <span class="apps-caret" aria-hidden="true"></span></button>
+      <div class="apps-menu" id="warsztatMenu" hidden>
+        <div class="apps-label">W budowie</div>
+        <!-- Kolejny projekt w budowie dodaj jako następny <a class="apps-item"> -->
+        <a class="apps-item" href="/ursus/">
+          <span class="apps-icon apps-icon-gra" aria-hidden="true"><b></b></span>
+          <span class="apps-text">
+            <span class="apps-name">Project Ursus</span>
+            <span class="apps-desc">Survival w C++: devlog misja po misji, z nagraniami i kodem</span>
+          </span>
+          <span class="apps-arrow">→</span>
+        </a>
       </div>
     </li>
   </ul>
@@ -671,12 +697,22 @@ document.addEventListener('mousemove', e => {
 });
 
 // ─── APPS MENU ───
-const appsToggle = document.getElementById('appsToggle');
-const appsMenu = document.getElementById('appsMenu');
-function setApps(open) { appsMenu.hidden = !open; appsToggle.setAttribute('aria-expanded', String(open)); }
-appsToggle.addEventListener('click', e => { e.stopPropagation(); setApps(appsMenu.hidden); });
-document.addEventListener('click', e => { if (!appsMenu.hidden && !e.target.closest('.nav-apps')) setApps(false); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !appsMenu.hidden) { setApps(false); appsToggle.focus(); } });
+// rozwijane menu w nawigacji (Apki, Warsztat): otwarte może być tylko jedno
+const navMenus = [...document.querySelectorAll('.nav-apps')].map(li => ({
+  li, toggle: li.querySelector('.apps-toggle'), menu: li.querySelector('.apps-menu'),
+}));
+function setMenu(m, open) { m.menu.hidden = !open; m.toggle.setAttribute('aria-expanded', String(open)); }
+navMenus.forEach(m => m.toggle.addEventListener('click', e => {
+  e.stopPropagation();
+  const open = m.menu.hidden;
+  navMenus.forEach(x => setMenu(x, false));
+  setMenu(m, open);
+}));
+document.addEventListener('click', e => { navMenus.forEach(m => { if (!m.menu.hidden && !m.li.contains(e.target)) setMenu(m, false); }); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  navMenus.forEach(m => { if (!m.menu.hidden) { setMenu(m, false); m.toggle.focus(); } });
+});
 
 // ─── NAV ───
 const nav = document.getElementById('nav');
