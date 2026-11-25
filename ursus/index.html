@@ -81,6 +81,27 @@ h3 { font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 1.45re
 .entry.next h3 { color: var(--fg-dim); }
 .entry.next .num { color: var(--green); }
 
+/* szczegóły */
+.entry > div { min-width: 0; }   /* bez tego długie linie kodu rozpychają kolumnę gridu */
+details.more { margin-top: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+details.more summary { cursor: pointer; list-style: none; padding: 12px 16px; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); display: flex; justify-content: space-between; align-items: center; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::after { content: "+"; font-size: 1rem; line-height: 1; transition: transform .2s; }
+details.more[open] summary::after { transform: rotate(45deg); }
+details.more summary:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; border-radius: 8px; }
+.more-in { padding: 4px 16px 18px; }
+.more-in h4 { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--fg); margin: 16px 0 8px; }
+.more-in p { font-size: .72rem; }
+.more-in p b { color: var(--fg); font-weight: 400; }
+.code { border: 1px solid var(--border2); border-radius: 6px; overflow: hidden; margin: 10px 0; background: #070c16; }
+.code-h { display: flex; justify-content: space-between; gap: 10px; padding: 6px 12px; font-size: .58rem; color: var(--fg-dim); border-bottom: 1px solid var(--border); letter-spacing: .04em; }
+.code pre { margin: 0; padding: 12px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: #2a3446 transparent; font-size: .68rem; line-height: 1.65; color: var(--fg); tab-size: 4; }
+.code code { background: none; padding: 0; font-size: inherit; }
+.code .k { color: #a5b4fc; } .code .t { color: #5eead4; } .code .f { color: #93c5fd; } .code .s { color: #fcd34d; }
+.code .n { color: #f9a8d4; } .code .m { color: #fdba74; } .code .c { color: #5b6577; font-style: italic; }
+.code-note { font-size: .62rem !important; color: var(--fg-dim); margin-top: -4px; }
+video.shot { display: block; width: 100%; height: auto; border: 1px solid var(--border2); border-radius: 8px; margin-bottom: 16px; background: #000; }
+
 footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 48px; font-size: .62rem; color: var(--fg-dim); line-height: 1.8; }
 
 @media (max-width: 560px) {
@@ -144,6 +165,19 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
         <div><b>C++</b>własny moduł <code>losowanie</code> (generator schowany jako <code>static</code>), <code>enum class</code> z <code>using enum</code> w <code>switch</code>, <code>do-while</code>, <code>std::map&lt;PrzedmiotRodzaj, int&gt;</code>, structured bindings w HUD-zie</div>
         <div class="trap"><b>Pułapki</b>cztery błędy naraz w tworzeniu przedmiotu (brak <code>const</code>, przecinek zamiast wywołania, kafle pomylone z pikselami, rysowanie za ostatnim <code>break</code>); <code>std::format</code> przyjmuje tylko wzór znany w czasie kompilacji</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Przedmiot ma rodzaj (<code>enum class</code>), pozycję i ilość. Miejsce losuje pętla <code>do-while</code>: losuje kafel tak długo, aż trafi w podłogę, maksymalnie 10 razy.</p><p>Ekwipunek to <code>std::map&lt;PrzedmiotRodzaj, int&gt;</code>, więc naboje są zwykłym wpisem obok złomu i apteczek. HUD przechodzi po mapie z <i>structured bindings</i>, dzięki którym klucz i wartość mają od razu własne nazwy.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/przedmiot.cpp</span><span>commit e6025dd</span></div><pre><code><span class="k">void</span> <span class="f">rozrzucPrzedmiot</span>(<span class="t">Przedmiot</span> &amp;przedmiot, <span class="k">const</span> <span class="t">Mapa</span>&amp; mapa) {
+    <span class="t">Vector2</span> poz;
+    <span class="k">int</span> proby = <span class="n">10</span>;
+    <span class="k">do</span> {
+        <span class="k">if</span> (proby-- == <span class="n">0</span>) <span class="k">return</span>;
+        poz = {.x = static_cast&lt;<span class="k">float</span>&gt;(<span class="f">losujInt</span>(<span class="n">0</span>, mapa.szerokosc)) * <span class="m">ROZMIAR_KAFLA</span>, .y = static_cast&lt;<span class="k">float</span>&gt;(<span class="f">losujInt</span>(<span class="n">0</span> , mapa.wysokosc))* <span class="m">ROZMIAR_KAFLA</span>};
+    }<span class="k">while</span> (<span class="f">czySciana</span>(mapa, poz));
+    przedmiot.pozycja = {.x = poz.x + (<span class="m">ROZMIAR_KAFLA</span> - <span class="n">10</span>)/<span class="n">2</span>, .y = poz.y + (<span class="m">ROZMIAR_KAFLA</span> - <span class="n">10</span>)/<span class="n">2</span>};
+}</code></pre></div><div class="code"><div class="code-h"><span>src/main.cpp</span><span>commit e6025dd</span></div><pre><code><span class="k">for</span> (<span class="k">const</span> <span class="k">auto</span>&amp; [item, ilosc] : gracz.ekwipunek) {
+    <span class="k">const</span> <span class="k">std</span>::string itemTxt = <span class="f">nazwaPrzedmiotu</span>(item) + <span class="k">std</span>::<span class="f">format</span>(<span class="s">": {}"</span>, ilosc);
+    <span class="t">DrawText</span>(itemTxt.<span class="f">c_str</span>(), <span class="m">SZEROKOSC</span> - <span class="t">MeasureText</span>(eqTxt, <span class="n">20</span>) - <span class="n">16</span>, <span class="m">WYSOKOSC</span> - <span class="n">100</span> + <span class="n">22</span> * wiersz, <span class="n">20</span>, <span class="m">GRAY</span>);
+    wiersz++;
+}</code></pre></div><h4>Historia błędów</h4><p>W funkcji tworzącej przedmiot były naraz cztery błędy: brak <code>const</code> przy mapie, przecinek zamiast wywołania losowania (operator przecinka po cichu zwraca drugą wartość), pomylone kafle z pikselami i rysowanie za ostatnim <code>break</code>, które się nigdy nie wykonywało. Jeden błąd zasłaniał następny.</p><p><code>std::format</code> przyjmuje tylko wzór znany w czasie kompilacji. Wzór złożony w trakcie działania programu wymaga <code>std::vformat</code>.</p></div></details>
     </div>
   </article>
 
@@ -151,13 +185,33 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
     <div class="num">08<span>2.11.2026</span></div>
     <div>
       <h3>Fale</h3>
-      <a class="shot" href="img/08_fale.png"><img src="img/08_fale.png" width="1280" height="720" loading="lazy" alt="Noc: kilku wrogów idzie gęsiego w stożku latarki"></a>
+      <video class="shot" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="img/08_fale.jpg" aria-label="Noc: kilku wrogów idzie gęsiego w stożku latarki"><source src="img/08_fale.mp4" type="video/mp4"></video>
       <p>Noc ma rytm. Co 25 sekund przez bramę wchodzi fala, każda o jednego wroga większa, a każda kolejna noc zaczyna od większej. Wrogowie idą gęsiego, każdy trochę innym tempem, a co dziesiąty wchodzi dziurą w płocie w rogu mapy. Nie nachodzą na siebie, tylko się rozpychają. Trafiony na chwilę czerwienieje.</p>
       <p>Pierwsza misja bez szkieletu: pliki, strukturę fal i funkcje zaprojektowałem sam.</p>
       <div class="learned">
         <div><b>C++</b><code>std::vector&lt;Wrog&gt;</code> zamiast <code>optional</code>, <code>&lt;random&gt;</code> (<code>mt19937</code>, rozkład jednostajny), pętla po parach <code>i</code>, <code>j = i + 1</code></div>
         <div class="trap"><b>Pułapki</b>referencja jako pole struktury blokuje przypisanie (<code>use of deleted function operator=</code>); parametr bez <code>&amp;</code> przesuwał kopię wektora; dzień zmienia się o północy, w środku nocy</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Fale prowadzi struktura z licznikami: czas do następnej fali, czas do następnego wroga, ilu wrogów już wyszło, numer fali i dzień. Liczniki odliczają <code>dt</code> w dół, a kiedy dojdą do zera, coś się dzieje i licznik startuje od nowa.</p><p>Każdy wróg dostaje losowe miejsce przy bramie i prędkość ×0,85–1,15 z <code>&lt;random&gt;</code>. Co dziesiąty wchodzi dziurą w płocie. Żeby wrogowie na siebie nie wchodzili, dla każdej pary nachodzących (<code>i</code> i <code>j = i + 1</code>…) odsuwam obu o połowę nakładania.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/fale.cpp</span><span>commit dd2107e</span></div><pre><code><span class="k">void</span> <span class="f">aktualizujFale</span>(<span class="t">Fala</span>&amp; f, <span class="k">std</span>::vector&lt;<span class="t">Wrog</span>&gt;&amp; wrogowie, <span class="k">const</span> <span class="k">float</span> dt) {
+    <span class="k">if</span> (f.czasDoFali &lt;= <span class="n">0</span>) {
+        f.numerFali++;
+        f.czasDoFali = <span class="m">ODSTEP_FALE</span>;
+        f.iloscWrogow = <span class="n">0</span>;
+    }
+    <span class="k">if</span> (f.czasDoWroga &lt;= <span class="n">0</span> <span class="k">and</span> f.iloscWrogow &lt; f.numerFali + f.dzien) {
+        <span class="t">Vector2</span> poz = {.x = <span class="m">BRAMA</span>.x + <span class="f">losuj</span>(-<span class="m">ROZRZUT_SPAWNU</span>, <span class="m">ROZRZUT_SPAWNU</span>), .y = <span class="m">BRAMA</span>.y};
+        <span class="k">if</span> (<span class="f">losuj</span>(<span class="n">0</span>, <span class="n">1</span>) &gt; <span class="n">0.9</span>) {
+            poz = <span class="m">DZIURA</span>;
+        }
+        wrogowie.<span class="f">push_back</span>(<span class="t">Wrog</span>{
+            .pozycja = poz,
+            .predkosc = <span class="m">PREDKOSC_WROGA</span> * <span class="f">losuj</span>(<span class="n">1</span> - <span class="m">ROZRZUT_PREDKOSCI</span>, <span class="n">1</span> + <span class="m">ROZRZUT_PREDKOSCI</span>)});
+        f.czasDoWroga = <span class="m">ODSTEP_WROGOWIE</span>;
+        f.iloscWrogow++;
+    }
+    f.czasDoFali -= dt;
+    f.czasDoWroga -= dt;
+}</code></pre></div><h4>Historia błędów</h4><p>Pole-referencja w strukturze (<code>Mapa&amp;</code>) blokuje przypisanie: kompilator zgłasza <code>use of deleted function operator=</code>, a reset <code>fala = Fala{}</code> potrzebuje przypisania.</p><p>Funkcja przyjmowała wektor wrogów bez <code>&amp;</code>, więc dodawała ich do kopii, a na ekranie nikt się nie pojawiał.</p><p>Numer dnia zmienia się o północy, czyli w środku nocy, więc fale rosły w połowie obrony. Dzień zapamiętuję teraz rano.</p></div></details>
     </div>
   </article>
 
@@ -165,12 +219,26 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
     <div class="num">07<span>2.11.2026</span></div>
     <div>
       <h3>Walka</h3>
-      <a class="shot" href="img/07_walka.png"><img src="img/07_walka.png" width="1280" height="720" loading="lazy" alt="Noc: czerwone smugi pocisków lecą w stronę wroga"></a>
+      <video class="shot" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="img/07_walka.jpg" aria-label="Noc: czerwone smugi pocisków lecą w stronę wroga"><source src="img/07_walka.mp4" type="video/mp4"></video>
       <p>Wreszcie można się bronić. Lewy przycisk strzela tam, gdzie celujesz, a czerwone smugi świecą nawet w ciemności. Pociski rozbijają się o ściany, trzy trafienia kładą wroga. 12 naboi na całe życie.</p>
       <p>Cała misja bez podpowiedzi, w dwóch commitach.</p>
       <div class="learned">
         <div><b>C++</b><code>std::vector</code> i <code>push_back</code>, pętla zakresowa z <code>&amp;</code> i <code>const&amp;</code>, pierwsza lambda w <code>std::erase_if</code></div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Pocisk to struktura: pozycja, kierunek, ruch i czas życia. Strzał to <code>push_back</code> do wektora pocisków. Co klatkę każdy pocisk się przesuwa i traci czas życia, a ten, który uderzył w ścianę, od razu kończy lot. Martwe pociski usuwa jedno <code>std::erase_if</code> z lambdą. Trafienie to sprawdzenie, czy punkt jest wewnątrz koła wroga.</p><p>Ważny szczegół to <code>&amp;</code> w pętli <code>for (auto&amp; p : pociski)</code>. Bez niego pętla zmieniałaby kopie i pociski stałyby w miejscu.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/pocisk.cpp</span><span>commit 65198a7</span></div><pre><code><span class="t">Pocisk</span> <span class="f">wystrzel</span>(<span class="k">const</span> <span class="t">Gracz</span>&amp; gracz) {
+    <span class="t">Vector2</span> kierunek{.x = <span class="k">std</span>::<span class="f">cos</span>(gracz.kat), .y = <span class="k">std</span>::<span class="f">sin</span>(gracz.kat)};
+    <span class="k">return</span> <span class="t">Pocisk</span>{.pozycja = gracz.pozycja + kierunek * <span class="n">20.f</span>,
+                    .kierunek = kierunek,
+                    .ruch = kierunek * <span class="m">PREDKOSC_POCISKU</span>,
+                    .zycie = <span class="m">CZAS_LOTU_POCISKU</span>};
+}</code></pre></div><div class="code"><div class="code-h"><span>src/pocisk.cpp</span><span>commit 65198a7</span></div><pre><code><span class="k">void</span> <span class="f">aktualizujPociski</span>(<span class="k">std</span>::vector&lt;<span class="t">Pocisk</span>&gt;&amp; pociski, <span class="k">const</span> <span class="t">Mapa</span>&amp; mapa, <span class="k">float</span> dt) {
+    <span class="k">for</span> (<span class="k">auto</span>&amp; p : pociski) {
+        p.pozycja += p.ruch * dt;
+        p.zycie -= dt;
+        <span class="k">if</span> (<span class="f">czySciana</span>(mapa, p.pozycja)) p.zycie = <span class="n">0</span>;
+    }
+    <span class="k">std</span>::<span class="f">erase_if</span>(pociski, [](<span class="k">const</span> <span class="k">auto</span>&amp; p) {<span class="k">return</span> p.zycie &lt;= <span class="n">0</span>;});
+}</code></pre></div></div></details>
     </div>
   </article>
 
@@ -184,6 +252,18 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
         <div><b>C++</b><code>std::optional</code>, refaktoryzacja (jeden kod ruchu dla gracza i wroga), kolizja koło–koło</div>
         <div class="trap"><b>Pułapki</b>zmienna bez wartości początkowej to śmieci, nie zero; <code>*</code> zamiast <code>+</code> w sumie promieni, więc wróg ranił z 80 px</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Wróg co klatkę idzie prosto na gracza: znormalizowany wektor różnicy pozycji razy prędkość. Do ruchu używa tej samej funkcji <code>przesun</code> co gracz. Wydzieliłem ją z kodu gracza, więc wróg też ślizga się po ścianach.</p><p>Dwa koła się stykają, kiedy odległość ich środków jest mniejsza niż suma promieni. Po trafieniu gracz ma chwilę nietykalności, bo inaczej tracił HP co klatkę. Wróg istnieje tylko w nocy, więc jest w <code>std::optional</code>: o zmierzchu powstaje, rano znika.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/mapa.cpp</span><span>commit 1792026</span></div><pre><code><span class="t">Vector2</span> <span class="f">przesun</span>(<span class="k">const</span> <span class="t">Mapa</span>&amp; mapa, <span class="t">Vector2</span> pozycja, <span class="t">Vector2</span> ruch, <span class="k">float</span> rozmiar) {
+    <span class="k">if</span> (!<span class="f">kolizja</span>(mapa, {pozycja.x + ruch.x, pozycja.y}, rozmiar)) {
+        pozycja.x += ruch.x;
+    }
+    <span class="k">if</span> (!<span class="f">kolizja</span>(mapa, {pozycja.x, pozycja.y + ruch.y}, rozmiar)) {
+        pozycja.y += ruch.y;
+    }
+
+    <span class="k">return</span> pozycja;
+}</code></pre></div><div class="code"><div class="code-h"><span>src/wrog.cpp</span><span>commit 1792026</span></div><pre><code><span class="k">bool</span> <span class="f">dotyka</span>(<span class="k">const</span> <span class="t">Wrog</span>&amp; wrog, <span class="k">const</span> <span class="t">Gracz</span>&amp; gracz) {
+    <span class="k">return</span> <span class="t">Vector2Distance</span>(gracz.pozycja, wrog.pozycja) &lt; gracz.rozmiar/<span class="n">2</span> + wrog.promien;
+}</code></pre></div><h4>Historia błędów</h4><p>W sumie promieni było <code>*</code> zamiast <code>+</code>: 8 × 10 = 80, więc wróg ranił gracza z 80 pikseli, zanim go dotknął.</p><p>Czas nietykalności nie miał wartości początkowej. W C++ taka zmienna zawiera śmieci z pamięci, a nie zero, więc gracz bywał nieśmiertelny przez losowo długi czas.</p><p>Całe rysowanie było w środku <code>if (graczZyje)</code>, więc po śmierci okno przestawało się odświeżać i nie było widać ekranu śmierci.</p></div></details>
     </div>
   </article>
 
@@ -191,12 +271,38 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
     <div class="num">05<span>1.11.2026</span></div>
     <div>
       <h3>Latarka</h3>
-      <a class="shot" href="img/05_latarka.png"><img src="img/05_latarka.png" width="1280" height="720" loading="lazy" alt="Prawie czarna noc, widać tylko stożek latarki"></a>
+      <video class="shot" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="img/05_latarka.jpg" aria-label="Prawie czarna noc, widać tylko stożek latarki"><source src="img/05_latarka.mp4" type="video/mp4"></video>
       <p>Tu zaczyna się klimat. Noc jest prawie czarna, widać tylko stożek latarki i słabą poświatę wokół gracza. <code>F</code> włącza i wyłącza latarkę.</p>
       <div class="learned">
         <div><b>Grafika</b>render do tekstury jako maska ciemności, mieszanie kolorów <code>MIN</code>, wachlarz z trójkątów</div>
         <div class="trap"><b>Pułapka</b>odwrócona maska, bo OpenGL liczy <code>y</code> od dołu</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Ciemność to osobna tekstura wielkości ekranu, czyli maska. Najpierw wypełniam ją ciemnym kolorem, a potem rysuję na niej poświatę wokół gracza i stożek latarki z mieszaniem <code>MIN</code>: z dwóch wartości krycia zostaje mniejsza. Światło wycina więc dziurę w ciemności, zamiast się na nią nakładać. Gotową maskę rysuję na samym wierzchu sceny.</p><p>Stożek to wachlarz kilkunastu trójkątów z gradientem od środka do krawędzi.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/swiatlo.cpp</span><span>commit a3cd3db</span></div><pre><code><span class="k">void</span> <span class="f">rysujMaske</span>(<span class="t">RenderTexture2D</span>&amp; maska, <span class="k">const</span> <span class="t">Camera2D</span>&amp; kamera, <span class="k">const</span> <span class="t">Gracz</span>&amp; gracz, <span class="k">const</span> <span class="t">Zegar</span>&amp; zegar) {
+    <span class="k">const</span> <span class="k">float</span> ciemnosc = (<span class="n">1.0f</span> - <span class="f">jasnosc</span>(zegar)) * <span class="m">MAKS_CIEMNOSC</span>;
+
+    <span class="t">BeginTextureMode</span>(maska);
+    <span class="t">ClearBackground</span>(<span class="t">Fade</span>(<span class="m">KOLOR_CIEMNOSCI</span>, ciemnosc));
+
+    <span class="t">BeginMode2D</span>(kamera);
+    <span class="f">rlSetBlendFactors</span>(<span class="m">RL_ONE</span>, <span class="m">RL_ONE</span>, <span class="m">RL_MIN</span>);
+    <span class="t">BeginBlendMode</span>(<span class="m">BLEND_CUSTOM</span>);
+
+    <span class="t">DrawCircleGradient</span>(gracz.pozycja, <span class="m">PROMIEN_POSWIATY</span>, <span class="t">Fade</span>(<span class="m">KOLOR_CIEMNOSCI</span>, <span class="n">0.5f</span>), <span class="m">KOLOR_CIEMNOSCI</span>);
+    <span class="k">if</span> (gracz.latarka){
+        <span class="f">rysujWachlarz</span>(gracz.pozycja, <span class="m">ZASIEG_LATARKI</span>, gracz.kat - <span class="m">POL_KATA_LATARKI</span>, gracz.kat + <span class="m">POL_KATA_LATARKI</span>, <span class="t">Fade</span>(<span class="m">KOLOR_CIEMNOSCI</span>, <span class="n">0.0f</span>), <span class="m">KOLOR_CIEMNOSCI</span>);
+    }
+
+    <span class="t">EndBlendMode</span>();
+    <span class="t">EndMode2D</span>();
+    <span class="t">EndTextureMode</span>();
+}</code></pre></div><h4>Historia błędów</h4><p>Pierwsza maska wyszła do góry nogami: światło było odbite w pionie względem gracza. OpenGL liczy <code>y</code> tekstury od dołu, a raylib ekran od góry. Rozwiązaniem jest ujemna wysokość przy rysowaniu tekstury:</p><div class="code"><div class="code-h"><span>src/swiatlo.cpp</span><span>commit a3cd3db</span></div><pre><code><span class="k">void</span> <span class="f">rysujCiemnosc</span>(<span class="k">const</span> <span class="t">RenderTexture2D</span>&amp; maska) {
+    <span class="t">DrawTextureRec</span>(
+        maska.texture,
+{.x = <span class="n">0</span>, .y = <span class="n">0</span>,
+        .width = static_cast&lt;<span class="k">float</span>&gt;(maska.texture.width), .height = -static_cast&lt;<span class="k">float</span>&gt;(maska.texture.height)},
+{.x = <span class="n">0</span>, .y = <span class="n">0</span>},
+        <span class="m">WHITE</span>);
+}</code></pre></div><p>Podłoga w szachownicę miała najpierw cztery prawie identyczne gałęzie <code>if</code>. Wystarczy jeden warunek <code>(x + y) % 2</code> i jedno wywołanie rysowania.</p></div></details>
     </div>
   </article>
 
@@ -204,12 +310,33 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
     <div class="num">04<span>31.10.2026</span></div>
     <div>
       <h3>Dzień i noc</h3>
-      <a class="shot" href="img/04_noc.png"><img src="img/04_noc.png" width="1280" height="720" loading="lazy" alt="Mapa przyciemniona na granatowo, zegar pokazuje noc"></a>
+      <video class="shot" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="img/04_noc.jpg" aria-label="Mapa przyciemniona na granatowo, zegar pokazuje noc"><source src="img/04_noc.mp4" type="video/mp4"></video>
       <p>Zegar: 10 sekund to godzina. Świt, dzień, zmierzch, noc: ekran płynnie ciemnieje, a nazwa pory pojawia się na środku i gaśnie.</p>
       <div class="learned">
         <div><b>C++</b><code>switch</code> po <code>enum class</code>, <code>std::format</code></div>
         <div class="trap"><b>Pułapki</b>jednostki (<code>dt</code> dzielone przez sekundy na godzinę, nie mnożone); <code>float != 0</code>, które nigdy nie trafia w zero</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Zegar trzyma godzinę jako <code>float</code> i co klatkę dodaje <code>dt / SEKUNDY_NA_GODZINE</code>. Pora dnia wynika z godziny, a jasność w czasie zmierzchu i świtu przechodzi liniowo między 1 a 0. Ekran przyciemnia półprzezroczysty granatowy prostokąt, którego krycie zależy od tej jasności. Na nagraniu czas leci 10× szybciej (klawisz <code>T</code>): od 17:00 do 22:00 w pięć sekund.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/czas.cpp</span><span>commit fea1a26</span></div><pre><code><span class="k">void</span> <span class="f">aktualizujZegar</span>(<span class="t">Zegar</span>&amp; zegar, <span class="k">float</span> dt) {
+    <span class="k">float</span> sng = <span class="m">SEKUNDY_NA_GODZINE</span>;
+    <span class="k">if</span> (<span class="t">IsKeyDown</span>(<span class="m">KEY_T</span>)) sng /= <span class="n">10</span>;
+    zegar.godzina += dt / sng;
+    <span class="k">if</span> (zegar.godzina &gt; <span class="n">24.f</span>) {
+        zegar.godzina -= <span class="n">24.f</span>;
+        zegar.dzien++;
+    }</code></pre></div><div class="code"><div class="code-h"><span>src/czas.cpp</span><span>commit fea1a26</span></div><pre><code><span class="k">float</span> <span class="f">jasnosc</span>(<span class="k">const</span> <span class="t">Zegar</span>&amp; zegar) {
+    <span class="k">switch</span> (<span class="f">poraDnia</span>(zegar)) {
+        <span class="k">using</span> <span class="k">enum</span> <span class="t">PoraDnia</span>;
+        <span class="k">case</span> <span class="t">PoraDnia</span>::<span class="t">Dzien</span>:
+        <span class="k">return</span> <span class="n">1.0f</span>;
+        <span class="k">case</span> <span class="t">PoraDnia</span>::<span class="t">Zmierzch</span>:
+        <span class="k">return</span> (<span class="m">POCZATEK_NOCY</span> - zegar.godzina)/(<span class="m">POCZATEK_NOCY</span> - <span class="m">POCZATEK_ZMIERZCHU</span>);
+        <span class="k">case</span> <span class="t">PoraDnia</span>::<span class="t">Noc</span>:
+        <span class="k">return</span> <span class="n">0.f</span>;
+        <span class="k">case</span> <span class="t">PoraDnia</span>::<span class="t">Swit</span>:
+        <span class="k">return</span> (zegar.godzina - <span class="m">POCZATEK_SWITU</span>)/(<span class="m">POCZATEK_DNIA</span> - <span class="m">POCZATEK_SWITU</span>);
+    }
+    <span class="k">throw</span> <span class="k">std</span>::<span class="f">invalid_argument</span>(<span class="s">"Zegaro non valido"</span>);
+}</code></pre></div><h4>Historia błędów</h4><p>Pierwsza wersja <b>mnożyła</b> <code>dt</code> przez sekundy na godzinę, zamiast przez nie dzielić. Cała doba mijała w niecałe trzy sekundy. Pomogło sprawdzenie jednostek: sekundy ÷ (sekundy/godzinę) = godziny.</p><p>Napis z nazwą pory miał znikać, kiedy licznik spadnie do zera, a warunek brzmiał <code>!= 0</code>. Licznik zmniejszany co klatkę o 0,016 przeskakuje zero (0,004 → −0,012) i nigdy nie jest dokładnie równy 0. Przy liczbach zmiennoprzecinkowych porównuje się <code>&gt; 0</code>, nie <code>!= 0</code>.</p></div></details>
     </div>
   </article>
 
@@ -222,6 +349,16 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
       <div class="learned">
         <div><b>C++</b>wektory, <code>atan2</code>, <code>std::numbers::pi</code>, <code>std::clamp</code></div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Kamera nie jest przyklejona do gracza, tylko płynnie do niego dojeżdża: co klatkę pokonuje część dystansu. Wzór <code>1 - exp(-k·dt)</code> sprawia, że ta płynność nie zależy od liczby klatek na sekundę.</p><p>Cel kamery jest przesunięty o 25% w stronę kursora, więc widać więcej tam, gdzie celujesz. <code>std::clamp</code> pilnuje, żeby kamera nie wyjechała poza mapę. Kąt obrotu gracza liczy <code>atan2</code> z różnicy między kursorem a graczem.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/kamera.cpp</span><span>commit 49570aa</span></div><pre><code><span class="k">void</span> <span class="f">aktualizujKamere</span>(<span class="t">Camera2D</span>&amp; kamera, <span class="t">Vector2</span> cel, <span class="k">const</span> <span class="t">Mapa</span>&amp; mapa, <span class="k">float</span> dt) {
+    <span class="k">float</span> t = <span class="n">1</span> - <span class="k">std</span>::<span class="f">exp</span>(-<span class="m">SZYBKOSC_KAMERY</span> * dt);
+    kamera.target = <span class="t">Vector2Lerp</span>(kamera.target, cel, t);
+    kamera.target.x = <span class="k">std</span>::<span class="f">clamp</span>(kamera.target.x, kamera.offset.x/ kamera.zoom, static_cast&lt;<span class="k">float</span>&gt;(mapa.szerokosc) * <span class="m">ROZMIAR_KAFLA</span> - kamera.offset.x/ kamera.zoom);
+    kamera.target.y = <span class="k">std</span>::<span class="f">clamp</span>(kamera.target.y, kamera.offset.y/ kamera.zoom, static_cast&lt;<span class="k">float</span>&gt;(mapa.wysokosc) * <span class="m">ROZMIAR_KAFLA</span> - kamera.offset.y/ kamera.zoom);
+}
+
+<span class="k">void</span> <span class="f">celuj</span>(<span class="t">Gracz</span>&amp; gracz, <span class="t">Vector2</span> cel) {
+    gracz.kat = <span class="k">std</span>::<span class="f">atan2</span>(cel.y - gracz.pozycja.y, cel.x - gracz.pozycja.x);
+}</code></pre></div></div></details>
     </div>
   </article>
 
@@ -233,6 +370,21 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
       <div class="learned">
         <div><b>C++</b><code>enum class</code>, mapa 2D w jednym <code>std::vector</code> (indeks <code>y * szerokosc + x</code>)</div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Mapa jest zapisana jako tekst: <code>#</code> to ściana, <code>.</code> to podłoga, każdy znak to kafel 32×32 px. W pamięci kafle leżą w jednym <code>std::vector</code>, a kafel (x, y) ma indeks <code>x + y * szerokosc</code>.</p><p>Kolizję sprawdzam w czterech rogach gracza. Najważniejszy szczegół: ruch próbuję <b>osobno w osi x i y</b>. Jeśli krok w bok wchodzi w ścianę, odrzucam tylko ten krok, a ruch w drugiej osi zostaje. Dlatego gracz ślizga się wzdłuż ścian, zamiast się do nich przyklejać.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/gracz.cpp</span><span>commit 49570aa</span></div><pre><code><span class="k">static</span> <span class="k">bool</span> <span class="f">kolizja</span>(<span class="k">const</span> <span class="t">Mapa</span>&amp; mapa, <span class="t">Vector2</span> srodek, <span class="k">float</span> rozmiar) {
+    <span class="k">float</span> h = rozmiar/<span class="n">2</span>;
+    <span class="k">return</span> <span class="f">czySciana</span>(mapa, {srodek.x - h, srodek.y - h})
+            || <span class="f">czySciana</span>(mapa, {srodek.x - h, srodek.y + h})
+            || <span class="f">czySciana</span>(mapa, {srodek.x + h, srodek.y - h})
+            || <span class="f">czySciana</span>(mapa, {srodek.x + h, srodek.y + h});
+}</code></pre></div><div class="code"><div class="code-h"><span>src/gracz.cpp</span><span>commit 49570aa</span></div><pre><code><span class="k">float</span> newX = gracz.pozycja.x + gracz.predkosc * kierunek.x * dt;
+<span class="k">float</span> newY = gracz.pozycja.y + gracz.predkosc * kierunek.y * dt;
+
+<span class="k">if</span> (!<span class="f">kolizja</span>(mapa, {newX, gracz.pozycja.y}, gracz.rozmiar)) {
+    gracz.pozycja.x = newX;
+}
+<span class="k">if</span> (!<span class="f">kolizja</span>(mapa, {gracz.pozycja.x, newY}, gracz.rozmiar)) {
+    gracz.pozycja.y = newY;
+}</code></pre></div><p class="code-note">Mapa nie ma osobnego commita, weszła razem z misją 3.</p></div></details>
     </div>
   </article>
 
@@ -245,6 +397,19 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
       <div class="learned">
         <div><b>C++</b>pętla gry, <code>deltaTime</code>, pierwsza <code>struct</code></div>
       </div>
+      <details class="more"><summary>Szczegóły</summary><div class="more-in"><h4>Jak to działa</h4><p>Klawisze ustawiają kierunek, a potem normalizuję go do długości 1. Bez tego ruch po skosie, czyli wektor (1, 1), ma długość √2 ≈ 1,41, więc gracz biegnie o 41% szybciej niż prosto.</p><p>Pozycja zmienia się o <code>prędkość × kierunek × dt</code>, gdzie <code>dt</code> to czas od poprzedniej klatki. Dzięki temu gracz porusza się tak samo szybko przy 30 i przy 144 FPS.</p><h4>Kod</h4><div class="code"><div class="code-h"><span>src/gracz.cpp</span><span>commit fa57fec</span></div><pre><code><span class="k">void</span> <span class="f">aktualizujGracza</span>(<span class="t">Gracz</span>&amp; gracz, <span class="k">float</span> dt) {
+    <span class="t">Vector2</span> kierunek{.x = <span class="n">0.0f</span>, .y = <span class="n">0.0f</span>};
+
+    <span class="k">if</span> (<span class="t">IsKeyDown</span>(<span class="m">KEY_D</span>)) kierunek.x = <span class="n">1</span>;
+    <span class="k">if</span> (<span class="t">IsKeyDown</span>(<span class="m">KEY_A</span>)) kierunek.x = -<span class="n">1</span>;
+    <span class="k">if</span> (<span class="t">IsKeyDown</span>(<span class="m">KEY_W</span>)) kierunek.y = -<span class="n">1</span>;
+    <span class="k">if</span> (<span class="t">IsKeyDown</span>(<span class="m">KEY_S</span>)) kierunek.y = <span class="n">1</span>;
+
+    <span class="k">if</span> (kierunek.x != <span class="n">0.0f</span> || kierunek.y != <span class="n">0.0f</span>) kierunek = <span class="t">Vector2Normalize</span>(kierunek);
+
+    gracz.pozycja.x += gracz.predkosc * kierunek.x * dt;
+    gracz.pozycja.y += gracz.predkosc * kierunek.y * dt;
+}</code></pre></div></div></details>
     </div>
   </article>
 
@@ -254,5 +419,11 @@ footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 32px 0 
   </footer>
 </main>
 
+<script>
+// nagrania: bez autoodtwarzania, gdy system prosi o ograniczenie ruchu
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  document.querySelectorAll('video[autoplay]').forEach(v => { v.removeAttribute('autoplay'); v.pause(); v.controls = true; });
+}
+</script>
 </body>
 </html>
